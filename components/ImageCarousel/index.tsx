@@ -2,9 +2,10 @@ import { useMemo, useState } from "react";
 import Image from "next/image";
 import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
+import { ImageResult, TextResult } from "../../types";
 
 interface LandingCarousel {
-  photos: any;
+  photos: ImageResult[];
 }
 
 /**
@@ -19,7 +20,7 @@ const LandingCarousel = (photos: LandingCarousel) => {
   const imageSlides = useMemo(() => {
     if (!images.length) return [];
 
-    return images.map((image: any, idx: number) => {
+    return images.map((image: ImageResult, idx: number) => {
       return (
         <div className="min-w-full" key={image + idx.toString()}>
           <Image

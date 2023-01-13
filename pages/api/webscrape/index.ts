@@ -1,11 +1,11 @@
 import type { NextApiRequest, NextApiResponse } from "next";
 import cacheData from "memory-cache";
-
-const cheerio = require("cheerio");
+import { ImageResult, TextResult } from "../../../types";
+import cheerio from "cheerio";
 
 type Data = {
-  images: any;
-  sortedWordMap: any;
+  images: [] | ImageResult[];
+  sortedWordMap: [] | TextResult[];
   wordCount: number;
 };
 
@@ -19,14 +19,15 @@ export default async function handler(
   res: NextApiResponse<Data | ErrorData>
 ) {
   const { url_input } = req.query;
+  // TODO: Once cheerio type resolved, update these anys
   let cleanedUrl = "";
-  let results = [] as any;
+  let results = [] as ImageResult[];
   let wordMap = {} as any;
   let sortedWordMap = [] as any;
   let wordCount = 0;
 
   const handleImages = async (html: any) => {
-    html.find("img").each((index: any, element: any) => {
+    html.find("img").each((index: number, element: cheerio.TagElement) => {
       if (!element.attribs.src.includes("http")) {
         results.push({
           url: cleanedUrl + element.attribs.src,
@@ -41,9 +42,10 @@ export default async function handler(
     });
   };
 
-  const handleText = async (html: any, cheerio: any) => {
-    html.each(function (i: number, elm: any) {
-      // TODO: Improve this regex to be more effective with html element chars
+  // TODO: Find Cheerio Type for $('HTML'), is not in ide rec
+  const handleText = async (html: any, cheerio: cheerio.Root) => {
+    html.each(function (i: number, elm: cheerio.Element) {
+      // TODO: Improve this regex to be more effective with html element chars or htmlparser library
       let line = cheerio(elm)
         .prop("innerText")
         .replace(/\s+/g, " ")
@@ -66,11 +68,11 @@ export default async function handler(
     }
 
     sortedWordMap = sortedWordMap
-      .sort(function (a: any, b: any) {
+      .sort(function (a: [string, number], b: [string, number]) {
         return b[1] - a[1];
       })
       .slice(0, 10)
-      .map((result: any) => {
+      .map((result: [string, number]) => {
         return { word: result[0], count: result[1] };
       });
   };

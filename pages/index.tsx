@@ -12,8 +12,6 @@ export default function Home() {
   const [wordCount, setWordCount] = useState(0);
   const [loading, setIsLoading] = useState(false);
 
-  console.log({ textResults });
-
   return (
     <div className="flex flex-col min-w-full text-center items-center">
       <Head>
