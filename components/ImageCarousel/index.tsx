@@ -4,7 +4,7 @@ import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
 
 interface LandingCarousel {
-  photos: string[];
+  photos: any;
 }
 
 /**
@@ -19,12 +19,12 @@ const LandingCarousel = (photos: LandingCarousel) => {
   const imageSlides = useMemo(() => {
     if (!images.length) return [];
 
-    return images.map((image, idx) => {
+    return images.map((image: any, idx: number) => {
       return (
         <div className="min-w-full" key={image + idx.toString()}>
           <Image
-            src={image}
-            alt="Wild Landscape"
+            src={image?.url}
+            alt={image.alt}
             width={100}
             height={100}
             unoptimized={true}

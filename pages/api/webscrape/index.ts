@@ -28,9 +28,15 @@ export default async function handler(
   const handleImages = async (html: any) => {
     html.find("img").each((index: any, element: any) => {
       if (!element.attribs.src.includes("http")) {
-        results.push(cleanedUrl + element.attribs.src);
+        results.push({
+          url: cleanedUrl + element.attribs.src,
+          alt: element.attribs.alt || "Missing alt text",
+        });
       } else {
-        results.push(element.attribs.src);
+        results.push({
+          url: element.attribs.src,
+          alt: element.attribs.alt || "Missing alt text",
+        });
       }
     });
   };
@@ -92,8 +98,7 @@ export default async function handler(
       } catch (err) {
         let errObject = {
           name: "no url",
-          error:
-            "Url was not not found. Double Check the spelling and please try again.",
+          error: "Url was not found, please verify the spelling or try again",
         };
 
         return res.status(404).json(errObject);
@@ -110,7 +115,7 @@ export default async function handler(
   }
 
   if (cleanedUrl) {
-    // Protects against case of no string passes/unclean url
+    // Protects against case of no string passes/unclean url waits for js loading 10s
     let options = {
       timeout: 1000,
     };
