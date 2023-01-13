@@ -63,7 +63,7 @@ export default function Home() {
     }
   };
   return (
-    <div className="flex-col text-center items-center">
+    <div className="flex flex-col min-w-full text-center items-center">
       <Head>
         <title>XC Gallery</title>
         <meta name="description" content="Image/text scraper for XC takehome" />
@@ -86,7 +86,6 @@ export default function Home() {
             type="text"
             name="url-input"
             className="min-w-full border-2 border-solid"
-            // onChange={(e) => validateForm(e)}
           />
         </div>
 
@@ -101,7 +100,7 @@ export default function Home() {
         </div>
       </form>
 
-      <div>
+      <div className="flex flex-col gap-y-16">
         {errorMessage && errorMessage}
 
         {loading && <h3>Loading...</h3>}
@@ -110,12 +109,14 @@ export default function Home() {
           <div>
             <h3>Total Word Count: {wordCount}</h3>
             <h5>(Hover pie chart to see respective word usage)</h5>
+
+            {textResults && <TextCountChart data={textResults} />}
           </div>
         )}
 
-        {textResults && <TextCountChart data={textResults} />}
-
-        {!!imageResults.length && <LandingCarousel photos={imageResults} />}
+        <div>
+          {!!imageResults.length && <LandingCarousel photos={imageResults} />}
+        </div>
       </div>
     </div>
   );

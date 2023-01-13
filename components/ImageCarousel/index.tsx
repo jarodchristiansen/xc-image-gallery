@@ -1,5 +1,7 @@
-import { useState } from "react";
-import { Carousel } from "react-bootstrap";
+import { useMemo, useState } from "react";
+import Image from "next/image";
+import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import { Carousel } from "react-responsive-carousel";
 
 interface LandingCarousel {
   photos: string[];
@@ -20,29 +22,35 @@ const LandingCarousel = (photos: LandingCarousel) => {
     setIndex(selectedIndex);
   };
 
+  const imageSlides = useMemo(() => {
+    if (!images.length) return [];
+
+    return images.map((image, idx) => {
+      return (
+        <div className="min-w-full" key={image + idx.toString()}>
+          <Image
+            src={image}
+            alt="Wild Landscape"
+            width={100}
+            height={100}
+            unoptimized={true}
+          />
+        </div>
+      );
+    });
+  }, [images]);
+
   return (
-    <div className="flex flex-col min-w-full">
+    <div className="max-h-80 max-w-2xl  mx-auto">
       <Carousel
-        activeIndex={index}
-        onSelect={handleSelect}
-        fade
-        variant="dark"
-        indicators={false}
+        showArrows
+        autoPlay
+        infiniteLoop
+        interval={3000}
+        dynamicHeight={false}
+        useKeyboardArrows={true}
       >
-        {!!images.length &&
-          images.map((item: any, idx: number) => (
-            <Carousel.Item
-              key={item + idx.toString()}
-              interval={2000}
-              className="carousel-item"
-            >
-              <img
-                src={item}
-                alt="slides"
-                className="carousel-image max-h-96 max-w-7xl mx-auto"
-              />
-            </Carousel.Item>
-          ))}
+        {imageSlides}
       </Carousel>
     </div>
   );
