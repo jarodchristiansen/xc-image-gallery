@@ -25,9 +25,9 @@ const LandingCarousel = (photos: LandingCarousel) => {
   const imageSlides = useMemo(() => {
     if (!images.length) return [];
 
-    return images.map((image) => {
+    return images.map((image, idx) => {
       return (
-        <div className="min-w-full">
+        <div className="min-w-full" key={image + idx.toString()}>
           <Image
             src={image}
             alt="Wild Landscape"
