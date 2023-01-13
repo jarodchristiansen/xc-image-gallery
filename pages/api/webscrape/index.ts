@@ -1,10 +1,10 @@
-// Next.js API route support: https://nextjs.org/docs/api-routes/introduction
 import type { NextApiRequest, NextApiResponse } from "next";
-const cheerio = require("cheerio"); // 1
+const cheerio = require("cheerio");
 
 type Data = {
   images: any;
   sortedWordMap: any;
+  wordCount: number;
 };
 
 type ErrorData = {
@@ -21,6 +21,7 @@ export default async function handler(
   let results = [] as any;
   let wordMap = {} as any;
   let sortedWordMap = [] as any;
+  let wordCount = 0;
 
   if (typeof url_input == "string") {
     cleanedUrl = url_input?.replace(/["']/g, "");
@@ -61,8 +62,9 @@ export default async function handler(
         }
       });
 
-      for (var vehicle in wordMap) {
-        sortedWordMap.push([vehicle, wordMap[vehicle]]);
+      for (var word in wordMap) {
+        wordCount += wordMap[word];
+        sortedWordMap.push([word, wordMap[word]]);
       }
 
       sortedWordMap.sort(function (a: any, b: any) {
@@ -72,32 +74,6 @@ export default async function handler(
       sortedWordMap = sortedWordMap.slice(0, 10).map((result: any) => {
         return { word: result[0], count: result[1] };
       });
-
-      // const textData = useMemo(() => {
-      //   if (!textResults) return [];
-
-      //   let data = [
-      //     ...textResults.map((result) => {
-      //       return { word: result[0], count: result[1] };
-      //     }),
-      //   ];
-
-      //   return data;
-      // }, [textResults]);
-
-      // const dataMap = useMemo(() => {
-
-      //   if (!data.length) return [];
-
-      //   return data.map((datapoint: any) => {
-      //     return (
-      //       <div>
-      //         <h2>Word: {datapoint?.word}</h2>
-      //         <h2>Count: {datapoint?.count}</h2>
-      //       </div>
-      //     );
-      //   });
-      // }, [data]);
     } catch (err) {
       res.statusCode = 404;
       let errObject = {
@@ -109,7 +85,5 @@ export default async function handler(
     }
   }
 
-  // sortedWordMap = sortedWordMap.slice(0, 10);
-
-  res.status(200).json({ images: results, sortedWordMap });
+  res.status(200).json({ images: results, sortedWordMap, wordCount });
 }
