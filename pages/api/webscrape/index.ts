@@ -25,18 +25,21 @@ export default async function handler(
   let sortedWordMap = [] as any;
   let wordCount = 0;
 
-  async function fetchWithCache(url: string) {
+  async function fetchWithCache(url: string, options: any) {
     const value = cacheData.get(url);
     if (value) {
       results = value?.images;
       sortedWordMap = value?.sortedWordMap;
       wordCount = value?.wordCount;
+
+      res.status(200).json({ images: results, sortedWordMap, wordCount });
     } else {
       try {
-        const response = await fetch(`${cleanedUrl}`);
+        const response = await fetch(`${cleanedUrl}`, options);
         const htmlString = await response.text();
         const $ = cheerio.load(htmlString);
 
+        // TODO: Improve runtime complexity of 2 calls while keeping verbose
         $("html")
           .find("img")
           .each((index: any, element: any) => {
@@ -73,19 +76,21 @@ export default async function handler(
         sortedWordMap = sortedWordMap.slice(0, 10).map((result: any) => {
           return { word: result[0], count: result[1] };
         });
+
+        let data = { images: results, sortedWordMap, wordCount };
+        let hours = 168;
+
+        cacheData.put(url, data, hours * 1000 * 60 * 60);
+        res.status(200).json({ images: results, sortedWordMap, wordCount });
       } catch (err) {
-        res.statusCode = 404;
         let errObject = {
           name: "no url",
           error:
             "Url was not not found. Double Check the spelling and please try again.",
         };
-        return res.json(errObject);
+
+        return res.status(404).json(errObject);
       }
-
-      let data = { images: results, sortedWordMap, wordCount };
-
-      cacheData.put(url, data, 24 * 1000 * 60 * 60);
     }
   }
 
@@ -99,8 +104,9 @@ export default async function handler(
 
   if (cleanedUrl) {
     // Protects against case of no string passes/unclean url
-    await fetchWithCache(cleanedUrl);
+    let options = {
+      timeout: 1000,
+    };
+    await fetchWithCache(cleanedUrl, options);
   }
-
-  res.status(200).json({ images: results, sortedWordMap, wordCount });
 }

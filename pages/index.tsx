@@ -106,7 +106,12 @@ export default function Home() {
 
         {loading && <h3>Loading...</h3>}
 
-        {!!wordCount && <h3>Total Word Count: {wordCount}</h3>}
+        {!!wordCount && (
+          <div>
+            <h3>Total Word Count: {wordCount}</h3>
+            <h5>(Hover pie chart to see respective word usage)</h5>
+          </div>
+        )}
 
         {textResults && <TextCountChart data={textResults} />}
 
