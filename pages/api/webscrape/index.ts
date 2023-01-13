@@ -43,8 +43,12 @@ export default async function handler(
 
   const handleText = async (html: any, cheerio: any) => {
     html.each(function (i: number, elm: any) {
-      // regex: /\s+/g matches 1 or more whitespace characters \n\r\f\t
-      let line = cheerio(elm).prop("innerText").replace(/\s+/g, " ");
+      // TODO: Improve this regex to be more effective with html element chars
+      let line = cheerio(elm)
+        .prop("innerText")
+        .replace(/\s+/g, " ")
+        .replace("<[^>]*>{}", "");
+
       for (let word of line.split(" ")) {
         word = word?.replace(/["']/g, "");
 
@@ -61,21 +65,22 @@ export default async function handler(
       sortedWordMap.push([word, wordMap[word]]);
     }
 
-    sortedWordMap.sort(function (a: any, b: any) {
-      return b[1] - a[1];
-    });
-
-    sortedWordMap = sortedWordMap.slice(0, 10).map((result: any) => {
-      return { word: result[0], count: result[1] };
-    });
+    sortedWordMap = sortedWordMap
+      .sort(function (a: any, b: any) {
+        return b[1] - a[1];
+      })
+      .slice(0, 10)
+      .map((result: any) => {
+        return { word: result[0], count: result[1] };
+      });
   };
 
   const fetchWithCache = async (url: string, options: any) => {
     const value = cacheData.get(url);
     if (value) {
-      results = value?.images;
-      sortedWordMap = value?.sortedWordMap;
-      wordCount = value?.wordCount;
+      results = value.images;
+      sortedWordMap = value.sortedWordMap;
+      wordCount = value.wordCount;
 
       res.status(200).json({ images: results, sortedWordMap, wordCount });
     } else {
@@ -86,7 +91,7 @@ export default async function handler(
 
         const html = $("html");
 
-        // TODO: Improve runtime complexity of 2 calls while keeping verbose
+        // TODO: Improve runtime complexity of both calls while keeping verbose
         await handleImages(html);
         await handleText(html, $);
 
@@ -114,8 +119,8 @@ export default async function handler(
       : cleanedUrl;
   }
 
+  // Protects against case of no string passes/unclean url waits for js loading 10s
   if (cleanedUrl) {
-    // Protects against case of no string passes/unclean url waits for js loading 10s
     let options = {
       timeout: 1000,
     };

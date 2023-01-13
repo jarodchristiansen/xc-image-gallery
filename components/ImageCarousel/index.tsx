@@ -23,8 +23,8 @@ const LandingCarousel = (photos: LandingCarousel) => {
       return (
         <div className="min-w-full" key={image + idx.toString()}>
           <Image
-            src={image?.url}
-            alt={image.alt}
+            src={image.url || ""}
+            alt={image.alt || "Missing Alt Text"}
             width={100}
             height={100}
             unoptimized={true}
