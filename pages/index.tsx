@@ -3,13 +3,14 @@ import Image from "next/image";
 import { Inter } from "@next/font/google";
 import styles from "../styles/Home.module.css";
 import { useMemo, useState } from "react";
+import TextCountChart from "../components/TextCountChart";
 
 const inter = Inter({ subsets: ["latin"] });
 
 export default function Home() {
   const [urlInput, setUrlInput] = useState<string>("");
   const [imageResults, setImageResults] = useState([]);
-  const [textResults, setTextResults] = useState();
+  const [textResults, setTextResults] = useState([]);
   const [errorMessage, setErrorMessage] = useState();
 
   const sendRequest = async (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -20,7 +21,6 @@ export default function Home() {
       .then((res) => res.json())
       .catch((err) => console.log({ err }));
 
-    console.log({ results }, "on Frontend");
     if (results?.images) {
       setImageResults(results.images);
     }
@@ -48,19 +48,14 @@ export default function Home() {
   const PhotoGallery = useMemo(() => {
     if (!imageResults) return [];
 
-    return imageResults.map((image) => {
+    return imageResults.map((image, idx) => {
       return (
-        <div className="min-w-full">
+        <div className="min-w-full" key={image + idx.toString()}>
           <Image src={image} height={90} width={90} alt="image" />
         </div>
       );
     });
   }, [imageResults]);
-
-  const textData = useMemo(() => {
-    console.log({ textResults }, "in textData hook");
-    if (!textResults) return [];
-  }, []);
 
   return (
     <div>
@@ -86,6 +81,11 @@ export default function Home() {
       </form>
 
       <div className="w-3 min-w-full">
+        {textResults && (
+          <div className="min-w-full">
+            <TextCountChart data={textResults} />
+          </div>
+        )}
         Photos
         <div className="grid">{PhotoGallery}</div>
       </div>
