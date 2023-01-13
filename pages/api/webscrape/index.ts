@@ -20,7 +20,7 @@ export default async function handler(
   let cleanedUrl = "";
   let results = [] as any;
   let wordMap = {} as any;
-  let sortedWordMap = [];
+  let sortedWordMap = [] as any;
 
   if (typeof url_input == "string") {
     cleanedUrl = url_input?.replace(/["']/g, "");
@@ -65,9 +65,39 @@ export default async function handler(
         sortedWordMap.push([vehicle, wordMap[vehicle]]);
       }
 
-      sortedWordMap.sort(function (a, b) {
+      sortedWordMap.sort(function (a: any, b: any) {
         return b[1] - a[1];
       });
+
+      sortedWordMap = sortedWordMap.slice(0, 10).map((result: any) => {
+        return { word: result[0], count: result[1] };
+      });
+
+      // const textData = useMemo(() => {
+      //   if (!textResults) return [];
+
+      //   let data = [
+      //     ...textResults.map((result) => {
+      //       return { word: result[0], count: result[1] };
+      //     }),
+      //   ];
+
+      //   return data;
+      // }, [textResults]);
+
+      // const dataMap = useMemo(() => {
+
+      //   if (!data.length) return [];
+
+      //   return data.map((datapoint: any) => {
+      //     return (
+      //       <div>
+      //         <h2>Word: {datapoint?.word}</h2>
+      //         <h2>Count: {datapoint?.count}</h2>
+      //       </div>
+      //     );
+      //   });
+      // }, [data]);
     } catch (err) {
       res.statusCode = 404;
       let errObject = {
@@ -79,9 +109,7 @@ export default async function handler(
     }
   }
 
-  sortedWordMap = sortedWordMap.slice(0, 10);
-
-  console.log({ sortedWordMap });
+  // sortedWordMap = sortedWordMap.slice(0, 10);
 
   res.status(200).json({ images: results, sortedWordMap });
 }
