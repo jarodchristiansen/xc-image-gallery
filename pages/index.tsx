@@ -28,7 +28,7 @@ export default function Home() {
 
     let results = await fetch(`/api/webscrape/?url_input='${urlInput}'`)
       .then((res) => res.json())
-      .catch((err) => setErrorMessage(err?.message));
+      .catch((err) => setErrorMessage(err?.error));
 
     setIsLoading(false);
 

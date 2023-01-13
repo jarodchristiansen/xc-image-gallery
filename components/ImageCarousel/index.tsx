@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import Image from "next/image";
-import "react-responsive-carousel/lib/styles/carousel.min.css"; // requires a loader
+import "react-responsive-carousel/lib/styles/carousel.min.css";
 import { Carousel } from "react-responsive-carousel";
 
 interface LandingCarousel {
@@ -15,12 +15,6 @@ interface LandingCarousel {
 
 const LandingCarousel = (photos: LandingCarousel) => {
   const { photos: images } = photos;
-
-  const [index, setIndex] = useState(0);
-
-  const handleSelect = (selectedIndex: number, e: any) => {
-    setIndex(selectedIndex);
-  };
 
   const imageSlides = useMemo(() => {
     if (!images.length) return [];
@@ -41,7 +35,7 @@ const LandingCarousel = (photos: LandingCarousel) => {
   }, [images]);
 
   return (
-    <div className="max-h-80 max-w-2xl  mx-auto">
+    <div className="max-h-80 max-w-lg mx-auto">
       <Carousel
         showArrows
         autoPlay
@@ -49,6 +43,7 @@ const LandingCarousel = (photos: LandingCarousel) => {
         interval={3000}
         dynamicHeight={false}
         useKeyboardArrows={true}
+        showThumbs={false}
       >
         {imageSlides}
       </Carousel>
