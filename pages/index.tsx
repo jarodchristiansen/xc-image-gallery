@@ -7,7 +7,7 @@ export default function Home() {
   const [urlInput, setUrlInput] = useState<string>("");
   const [imageResults, setImageResults] = useState([]);
   const [textResults, setTextResults] = useState([]);
-  const [errorMessage, setErrorMessage] = useState();
+  const [errorMessage, setErrorMessage] = useState("");
   const [wordCount, setWordCount] = useState(0);
   const [submitDisabled, setSubmitDisabled] = useState(true);
   const [loading, setIsLoading] = useState(false);
@@ -16,6 +16,7 @@ export default function Home() {
     setWordCount(0);
     setImageResults([]);
     setTextResults([]);
+    setErrorMessage("");
   };
 
   const sendRequest = async (e: React.ChangeEvent<HTMLFormElement>) => {
@@ -28,10 +29,11 @@ export default function Home() {
 
     let results = await fetch(`/api/webscrape/?url_input='${urlInput}'`)
       .then((res) => res.json())
-      .catch((err) => setErrorMessage(err?.message));
+      .catch((err) => {
+        setErrorMessage(err?.error);
+      });
 
     setIsLoading(false);
-
     setWordCount(results?.wordCount);
 
     if (results?.images) {
@@ -40,6 +42,14 @@ export default function Home() {
 
     if (results?.sortedWordMap) {
       setTextResults(results.sortedWordMap);
+    } else if (
+      !results?.wordCount &&
+      !results.images &&
+      !results?.sortedWordMap
+    ) {
+      setErrorMessage(
+        "No content found, please attempt a search with another url"
+      );
     }
 
     setSubmitDisabled(false);
