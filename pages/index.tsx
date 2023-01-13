@@ -16,6 +16,7 @@ export default function Home() {
     setWordCount(0);
     setImageResults([]);
     setTextResults([]);
+    setErrorMessage("");
   };
 
   const sendRequest = async (e: React.ChangeEvent<HTMLFormElement>) => {
