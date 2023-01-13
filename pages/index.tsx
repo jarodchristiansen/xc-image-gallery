@@ -1,27 +1,38 @@
 import Head from "next/head";
-import Image from "next/image";
-import { Inter } from "@next/font/google";
-import styles from "../styles/Home.module.css";
-import { useMemo, useState } from "react";
-import TextCountChart from "../components/TextCountChart";
+import { useState } from "react";
 import LandingCarousel from "../components/ImageCarousel";
+import TextCountChart from "../components/TextCountChart";
 
 export default function Home() {
   const [urlInput, setUrlInput] = useState<string>("");
   const [imageResults, setImageResults] = useState([]);
   const [textResults, setTextResults] = useState([]);
   const [errorMessage, setErrorMessage] = useState();
-  const [wordCount, setWordCount] = useState(undefined);
+  const [wordCount, setWordCount] = useState(0);
+  const [submitDisabled, setSubmitDisabled] = useState(true);
+  const [loading, setIsLoading] = useState(false);
+
+  const clearData = () => {
+    setWordCount(0);
+    setImageResults([]);
+    setTextResults([]);
+  };
 
   const sendRequest = async (e: React.ChangeEvent<HTMLFormElement>) => {
-    // Sends URL to fetch images/data
     e.preventDefault();
+
+    clearData();
+
+    setIsLoading(true);
+    setSubmitDisabled(true);
 
     let results = await fetch(`/api/webscrape/?url_input='${urlInput}'`)
       .then((res) => res.json())
-      .catch((err) => console.log({ err }));
+      .catch((err) => setErrorMessage(err?.message));
 
-    setWordCount(results.wordCount);
+    setIsLoading(false);
+
+    setWordCount(results?.wordCount);
 
     if (results?.images) {
       setImageResults(results.images);
@@ -30,9 +41,11 @@ export default function Home() {
     if (results?.sortedWordMap) {
       setTextResults(results.sortedWordMap);
     }
+
+    setSubmitDisabled(false);
   };
 
-  const validateForm = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const validateForm = (e: React.ChangeEvent<HTMLFormElement>) => {
     setUrlInput(e.target.value);
     let input = e.target.value;
 
@@ -42,21 +55,13 @@ export default function Home() {
     let regex = new RegExp(expression);
 
     let test = input.match(regex);
-    console.log({ test });
+
+    if (test) {
+      setSubmitDisabled(false);
+    } else {
+      setSubmitDisabled(true);
+    }
   };
-
-  // const PhotoGallery = useMemo(() => {
-  //   if (!imageResults) return [];
-
-  //   return imageResults.map((image, idx) => {
-  //     return (
-  //       <div className="min-w-full" key={image + idx.toString()}>
-  //         <Image src={image} height={90} width={90} alt="image" />
-  //       </div>
-  //     );
-  //   });
-  // }, [imageResults]);
-
   return (
     <div className="flex-col text-center items-center">
       <Head>
@@ -70,6 +75,7 @@ export default function Home() {
 
       <form
         onSubmit={sendRequest}
+        onChange={validateForm}
         className="flex-col mx-auto border-2 border-solid w-8/12 text-center p-8"
       >
         <div>
@@ -80,23 +86,36 @@ export default function Home() {
             type="text"
             name="url-input"
             className="min-w-full border-2 border-solid"
-            onChange={(e) => validateForm(e)}
+            // onChange={(e) => validateForm(e)}
           />
         </div>
 
         <div className="pt-6">
-          <button type="submit" className="border-2 border-solid">
-            Submit
+          <button
+            type="submit"
+            disabled={submitDisabled}
+            className="border-2 border-solid py-2 px-2 bg-purple-500 text-white disabled:hover:bg-black disabled:cursor-not-allowed"
+          >
+            <span>Submit</span>
           </button>
         </div>
       </form>
 
       <div>
-        {wordCount && <h3>Total Word Count: {wordCount}</h3>}
+        {errorMessage && errorMessage}
+
+        {loading && <h3>Loading...</h3>}
+
+        {!!wordCount && (
+          <div>
+            <h3>Total Word Count: {wordCount}</h3>
+            <h5>(Hover pie chart to see respective word usage)</h5>
+          </div>
+        )}
 
         {textResults && <TextCountChart data={textResults} />}
 
-        {imageResults && <LandingCarousel photos={imageResults} />}
+        {!!imageResults.length && <LandingCarousel photos={imageResults} />}
       </div>
     </div>
   );

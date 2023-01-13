@@ -1,14 +1,21 @@
-import {
-  Tooltip,
-  PieChart,
-  Pie,
-  Cell,
-  Legend,
-  ResponsiveContainer,
-} from "recharts";
-import React, { useMemo } from "react";
+import { Cell, Legend, Pie, PieChart, Tooltip } from "recharts";
 
-const TextCountChart = (data: any) => {
+/**
+ *
+ * @param data: array of {word: string, count: number} to indicate word/count for most used words
+ * @returns Recharts PieChart returning the 10 most frequently used words on the page.
+ */
+
+interface TextCountChartProps {
+  data: CountItem[];
+}
+
+interface CountItem {
+  word: string;
+  count: number;
+}
+
+const TextCountChart = (data: TextCountChartProps) => {
   const COLORS = [
     "#8884d8",
     "#82ca9d",
@@ -23,7 +30,7 @@ const TextCountChart = (data: any) => {
 
   return (
     <div>
-      {data.data.length && (
+      {!!data?.data?.length && (
         <PieChart width={500} height={500} className="mx-auto">
           <Pie
             data={data.data}
@@ -36,7 +43,7 @@ const TextCountChart = (data: any) => {
             outerRadius={120}
             fill="#8884d8"
           >
-            {data.data.map((entry: any, index: number) => {
+            {data?.data.map((entry: any, index: number) => {
               return (
                 <Cell
                   key={`cell-${index}`}
@@ -45,9 +52,7 @@ const TextCountChart = (data: any) => {
               );
             })}
           </Pie>
-          <Tooltip
-          //   content={CustomToolTip}
-          />
+          <Tooltip />
           <Legend />
         </PieChart>
       )}
