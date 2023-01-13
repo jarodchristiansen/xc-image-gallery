@@ -1,6 +1,18 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-}
 
-module.exports = nextConfig
+  images: {
+    //TODO: Update this to allow more domains/figure out wildcard strategy
+    domains: [
+      "www.google.com",
+      "lh3.googleusercontent.com",
+      "assets.coingecko.com",
+      "resources.cryptocompare.com",
+      "images.cryptocompare.com",
+      "hodl-watch.vercel.app",
+    ],
+  },
+};
+
+module.exports = nextConfig;
