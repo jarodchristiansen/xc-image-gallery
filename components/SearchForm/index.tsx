@@ -9,6 +9,15 @@ interface SearchFormProps {
   setErrorMessage: (message: string) => void;
 }
 
+/**
+ *
+ * @param SetIsLoading: Sets loading state for page level while scraping
+ * @param setWordCount: Sets the total word count from scraped results
+ * @param setImageResults: Sets the images that will be used in LandingCarousel from results
+ * @param setTextResults: Sets the text array for TextCountChart
+ * @param setErrorMessage: Displays the error message returned if page is not able to be scraped.
+ * @returns Form allowing user to enter a url to be scraped for images/text data.
+ */
 const SearchForm = ({
   setIsLoading,
   setWordCount,

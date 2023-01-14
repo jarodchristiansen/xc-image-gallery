@@ -1,10 +1,10 @@
-import { useMemo, useState } from "react";
 import Image from "next/image";
-import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { useMemo } from "react";
 import { Carousel } from "react-responsive-carousel";
-import { ImageResult, TextResult } from "../../types";
+import "react-responsive-carousel/lib/styles/carousel.min.css";
+import { ImageResult } from "../../types";
 
-interface LandingCarousel {
+interface LandingCarouselProps {
   photos: ImageResult[];
 }
 
@@ -14,7 +14,7 @@ interface LandingCarousel {
  * @returns LandingCarousel component showcasing the images scraped from page.
  */
 
-const LandingCarousel = (photos: LandingCarousel) => {
+const LandingCarousel = (photos: LandingCarouselProps) => {
   const { photos: images } = photos;
 
   const imageSlides = useMemo(() => {
@@ -36,7 +36,7 @@ const LandingCarousel = (photos: LandingCarousel) => {
   }, [images]);
 
   return (
-    <div className="max-h-80 max-w-lg mx-auto">
+    <div className="max-h-80 sm:max-w-lg lg:max-w-2xl mx-auto">
       <Carousel
         showArrows
         autoPlay

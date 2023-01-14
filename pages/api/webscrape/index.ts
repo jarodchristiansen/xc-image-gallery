@@ -14,6 +14,11 @@ type ErrorData = {
   name: string;
 };
 
+/**
+ *
+ * @param req - url_input query on req is user supplied URL to be scraped
+ * @param res - Images, SortedWordMap, and WordCount of scraped site, or error message
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data | ErrorData>
@@ -47,6 +52,9 @@ export default async function handler(
     html.each(function (i: number, elm: cheerio.Element) {
       // TODO: Improve this regex to be more robust with html element chars or update to htmlparser library
       // Potential library: https://www.npmjs.com/package/html-react-parser
+
+      // textContent gets the content of all elements, including <script> and <style> elements.
+      // In contrast, innerText only shows "human-readable" elements. although innerText is more computational expensive
       let line = cheerio(elm)
         .prop("innerText")
         .replace(/\s+/g, " ")
