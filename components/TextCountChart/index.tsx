@@ -1,5 +1,5 @@
 import { Cell, Legend, Pie, PieChart, Tooltip } from "recharts";
-import { ImageResult, TextResult } from "../../types";
+import { TextResult } from "../../types";
 
 /**
  *
@@ -32,7 +32,7 @@ const TextCountChart = (data: TextCountChartProps) => {
   return (
     <div>
       {!!data?.data?.length && (
-        <PieChart width={500} height={500} className="mx-auto">
+        <PieChart width={400} height={400} className="mx-auto">
           <Pie
             data={data.data}
             color="#000000"

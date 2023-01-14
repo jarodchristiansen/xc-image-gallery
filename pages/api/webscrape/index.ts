@@ -14,6 +14,11 @@ type ErrorData = {
   name: string;
 };
 
+/**
+ *
+ * @param req - url_input query on req is user supplied URL to be scraped
+ * @param res - Images, SortedWordMap, and WordCount of scraped site, or error message
+ */
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data | ErrorData>
@@ -42,14 +47,18 @@ export default async function handler(
     });
   };
 
-  // TODO: Find Cheerio Type for $('HTML'), is not in ide rec
+  // TODO: Find Cheerio Type for $('HTML'), Selector type not applicable
   const handleText = async (html: any, cheerio: cheerio.Root) => {
     html.each(function (i: number, elm: cheerio.Element) {
-      // TODO: Improve this regex to be more effective with html element chars or htmlparser library
+      // TODO: Improve this regex to be more robust with html element chars or update to htmlparser library
+      // Potential library: https://www.npmjs.com/package/html-react-parser
+
+      // textContent gets the content of all elements, including <script> and <style> elements.
+      // In contrast, innerText only shows "human-readable" elements. although innerText is more computational expensive
       let line = cheerio(elm)
         .prop("innerText")
         .replace(/\s+/g, " ")
-        .replace("<[^>]*>{}", "");
+        .replace(/(<([^>]+)>)/gi, "");
 
       for (let word of line.split(" ")) {
         word = word?.replace(/["']/g, "");
@@ -121,7 +130,6 @@ export default async function handler(
       : cleanedUrl;
   }
 
-  // Protects against case of no string passes/unclean url waits for js loading 10s
   if (cleanedUrl) {
     let options = {
       timeout: 1000,
