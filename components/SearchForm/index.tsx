@@ -84,7 +84,7 @@ const SearchForm = ({
     <form
       onSubmit={sendRequest}
       onChange={validateForm}
-      className="flex-col mx-auto border-2 border-solid w-8/12 text-center p-8"
+      className="flex-col mx-auto border-2 border-solid md:w-8/12 text-center p-8"
     >
       <div>
         <label htmlFor="url-input">

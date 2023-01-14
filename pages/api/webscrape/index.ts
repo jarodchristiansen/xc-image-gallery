@@ -42,14 +42,15 @@ export default async function handler(
     });
   };
 
-  // TODO: Find Cheerio Type for $('HTML'), is not in ide rec
+  // TODO: Find Cheerio Type for $('HTML'), Selector type not applicable
   const handleText = async (html: any, cheerio: cheerio.Root) => {
     html.each(function (i: number, elm: cheerio.Element) {
-      // TODO: Improve this regex to be more effective with html element chars or htmlparser library
+      // TODO: Improve this regex to be more robust with html element chars or update to htmlparser library
+      // Potential library: https://www.npmjs.com/package/html-react-parser
       let line = cheerio(elm)
         .prop("innerText")
         .replace(/\s+/g, " ")
-        .replace("<[^>]*>{}", "");
+        .replace(/(<([^>]+)>)/gi, "");
 
       for (let word of line.split(" ")) {
         word = word?.replace(/["']/g, "");
@@ -121,7 +122,6 @@ export default async function handler(
       : cleanedUrl;
   }
 
-  // Protects against case of no string passes/unclean url waits for js loading 10s
   if (cleanedUrl) {
     let options = {
       timeout: 1000,
