@@ -60,7 +60,7 @@ export default async function handler(
       // Potential library: https://www.npmjs.com/package/html-react-parser
 
       // textContent gets the content of all elements, including <script> and <style> elements.
-      // In contrast, innerText only shows "human-readable" elements. although innerText is more computational expensive
+      // In contrast, innerText only shows "human-readable" elements. although innerText is more computationally expensive
       let line = cheerio(elm)
         .prop("innerText")
         .replace(/\s+/g, " ")
@@ -92,9 +92,9 @@ export default async function handler(
       });
   };
 
-  const fetchPageData = async (url: string, options: any) => {
+  const fetchPageData = async (url: string) => {
     try {
-      const response = await fetch(`${url}`, options);
+      const response = await fetch(`${url}`);
       const htmlString = await response.text();
       const $ = cheerio.load(htmlString);
 
@@ -123,10 +123,7 @@ export default async function handler(
   }
 
   if (cleanedUrl) {
-    let options = {
-      timeout: 1000,
-    };
-    await fetchPageData(cleanedUrl, options);
+    await fetchPageData(cleanedUrl);
   } else {
     errObject.name = "Invalid Request";
     errObject.message =

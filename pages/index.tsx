@@ -12,7 +12,7 @@ import { ImageResult, TextResult } from "../types";
 export default function Home() {
   const [imageResults, setImageResults] = useState<[] | ImageResult[]>([]);
   const [textResults, setTextResults] = useState<[] | TextResult[]>([]);
-  const [errorMessage, setErrorMessage] = useState("");
+
   const [wordCount, setWordCount] = useState(0);
   const [loading, setIsLoading] = useState(false);
 
@@ -32,12 +32,9 @@ export default function Home() {
         setWordCount={setWordCount}
         setImageResults={setImageResults}
         setTextResults={setTextResults}
-        setErrorMessage={setErrorMessage}
       />
 
       <div className="flex flex-col gap-y-16">
-        {errorMessage && errorMessage}
-
         {loading && <h3>Loading...</h3>}
 
         {!!wordCount && (
