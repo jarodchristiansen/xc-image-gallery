@@ -1,12 +1,12 @@
 import { useState } from "react";
 import { ImageResult, TextResult } from "../../types";
+import { validateURLForm } from "../../helpers/formHelpers";
 
 interface SearchFormProps {
   setIsLoading: (answer: boolean) => void;
   setWordCount: (count: number) => void;
   setImageResults: (array: ImageResult[]) => void;
   setTextResults: (array: TextResult[]) => void;
-  setErrorMessage: (message: string) => void;
 }
 
 /**
@@ -15,7 +15,6 @@ interface SearchFormProps {
  * @param setWordCount: Sets the total word count from scraped results
  * @param setImageResults: Sets the images that will be used in LandingCarousel from results
  * @param setTextResults: Sets the text array for TextCountChart
- * @param setErrorMessage: Displays the error message returned if page is not able to be scraped.
  * @returns Form allowing user to enter a url to be scraped for images/text data.
  */
 const SearchForm = ({
@@ -23,10 +22,10 @@ const SearchForm = ({
   setWordCount,
   setImageResults,
   setTextResults,
-  setErrorMessage,
 }: SearchFormProps) => {
   const [urlInput, setUrlInput] = useState<string>("");
   const [submitDisabled, setSubmitDisabled] = useState(true);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const clearData = () => {
     setWordCount(0);
@@ -43,7 +42,7 @@ const SearchForm = ({
     setIsLoading(true);
     setSubmitDisabled(true);
 
-    // TODO: Consider moving search to SSR query on separate page after input, enables true 404's from API
+    // TODO: Consider moving search to SSR query on separate page after input, enables true 404's from API in catch
     let results = await fetch(`/api/webscrape/?url_input='${urlInput}'`).then(
       (res) => res.json()
     );
@@ -57,55 +56,52 @@ const SearchForm = ({
     }
 
     setIsLoading(false);
-
     setSubmitDisabled(false);
   };
 
-  const validateForm = (e: React.ChangeEvent<HTMLFormElement>) => {
-    setUrlInput(e.target.value);
-    let input = e.target.value;
-
-    // http://www.faqs.org/rfcs/rfc3987.html - Reference, verifies url structure in input
-    let expression =
-      /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
-    let regex = new RegExp(expression);
-
-    let test = input.match(regex);
-
-    if (test) {
-      setSubmitDisabled(false);
-    } else {
-      setSubmitDisabled(true);
+  const handleFormChange = (e: React.ChangeEvent<HTMLFormElement>) => {
+    if (errorMessage) {
+      setErrorMessage("");
     }
+
+    setUrlInput(e.target.value);
+
+    validateURLForm(e, setSubmitDisabled, setErrorMessage, submitDisabled);
   };
 
   return (
-    <form
-      onSubmit={sendRequest}
-      onChange={validateForm}
-      className="flex-col mx-auto border-2 border-solid md:w-8/12 text-center p-8"
-    >
-      <div>
-        <label htmlFor="url-input">
-          Enter a valid URL to see the images/text count of that page
-        </label>
-        <input
-          type="text"
-          name="url-input"
-          className="min-w-full border-2 border-solid"
-        />
-      </div>
+    <div className="flex-col mx-auto md:w-8/12 text-center">
+      <form
+        onSubmit={sendRequest}
+        onChange={handleFormChange}
+        className="border-2 border-solid p-8"
+      >
+        <div>
+          <label htmlFor="url-input">
+            Enter a valid URL to see the images/text count of that page
+          </label>
+          <input
+            type="text"
+            name="url-input"
+            className="min-w-full border-2 border-solid"
+          />
+        </div>
 
-      <div className="pt-6">
-        <button
-          type="submit"
-          disabled={submitDisabled}
-          className="border-2 border-solid py-2 px-2 bg-purple-500 text-white disabled:hover:bg-black disabled:cursor-not-allowed"
-        >
-          <span>Submit</span>
-        </button>
-      </div>
-    </form>
+        <div className="pt-6">
+          <button
+            type="submit"
+            disabled={submitDisabled}
+            className="border-2 border-solid py-2 px-2 bg-purple-500 text-white disabled:hover:bg-black disabled:cursor-not-allowed"
+          >
+            <span>Submit</span>
+          </button>
+        </div>
+      </form>
+
+      {errorMessage && (
+        <span className="text-red-500 my-6">{errorMessage}</span>
+      )}
+    </div>
   );
 };
 
