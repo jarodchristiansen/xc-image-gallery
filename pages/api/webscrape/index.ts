@@ -18,6 +18,8 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data | ErrorData>
 ) {
+  // set Vercel cache response for 1 week in seconds
+  res.setHeader("Cache-Control", "s-maxage=604800000");
   const { url_input } = req.query;
   // TODO: Once cheerio type resolved, update these anys
   let cleanedUrl = "";
@@ -78,40 +80,67 @@ export default async function handler(
   };
 
   const fetchWithCache = async (url: string, options: any) => {
-    const value = cacheData.get(url);
-    if (value) {
-      results = value.images;
-      sortedWordMap = value.sortedWordMap;
-      wordCount = value.wordCount;
+    try {
+      const response = await fetch(`${cleanedUrl}`, options);
+      const htmlString = await response.text();
+      const $ = cheerio.load(htmlString);
 
+      const html = $("html");
+
+      // TODO: Improve runtime complexity of both calls while keeping verbose
+      await handleImages(html);
+      await handleText(html, $);
+
+      let data = { images: results, sortedWordMap, wordCount };
+      let hours = 168;
+
+      // cacheData.put(url, data, hours * 1000 * 60 * 60);
       res.status(200).json({ images: results, sortedWordMap, wordCount });
-    } else {
-      try {
-        const response = await fetch(`${cleanedUrl}`, options);
-        const htmlString = await response.text();
-        const $ = cheerio.load(htmlString);
+    } catch (err) {
+      let errObject = {
+        name: "no url",
+        error: "Url was not found, please verify the spelling or try again",
+      };
 
-        const html = $("html");
-
-        // TODO: Improve runtime complexity of both calls while keeping verbose
-        await handleImages(html);
-        await handleText(html, $);
-
-        let data = { images: results, sortedWordMap, wordCount };
-        let hours = 168;
-
-        cacheData.put(url, data, hours * 1000 * 60 * 60);
-        res.status(200).json({ images: results, sortedWordMap, wordCount });
-      } catch (err) {
-        let errObject = {
-          name: "no url",
-          error: "Url was not found, please verify the spelling or try again",
-        };
-
-        return res.status(404).json(errObject);
-      }
+      return res.status(404).json(errObject);
     }
   };
+
+  // const fetchWithCache = async (url: string, options: any) => {
+  //   const value = cacheData.get(url);
+  //   if (value) {
+  //     results = value.images;
+  //     sortedWordMap = value.sortedWordMap;
+  //     wordCount = value.wordCount;
+
+  //     res.status(200).json({ images: results, sortedWordMap, wordCount });
+  //   } else {
+  //     try {
+  //       const response = await fetch(`${cleanedUrl}`, options);
+  //       const htmlString = await response.text();
+  //       const $ = cheerio.load(htmlString);
+
+  //       const html = $("html");
+
+  //       // TODO: Improve runtime complexity of both calls while keeping verbose
+  //       await handleImages(html);
+  //       await handleText(html, $);
+
+  //       let data = { images: results, sortedWordMap, wordCount };
+  //       let hours = 168;
+
+  //       cacheData.put(url, data, hours * 1000 * 60 * 60);
+  //       res.status(200).json({ images: results, sortedWordMap, wordCount });
+  //     } catch (err) {
+  //       let errObject = {
+  //         name: "no url",
+  //         error: "Url was not found, please verify the spelling or try again",
+  //       };
+
+  //       return res.status(404).json(errObject);
+  //     }
+  //   }
+  // };
 
   if (typeof url_input == "string") {
     cleanedUrl = url_input?.replace(/["']/g, "");
