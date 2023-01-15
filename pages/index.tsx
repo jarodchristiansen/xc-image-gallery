@@ -5,6 +5,10 @@ import TextCountChart from "../components/TextCountChart";
 import SearchForm from "../components/SearchForm";
 import { ImageResult, TextResult } from "../types";
 
+/**
+ *
+ * @returns Landing Page with SearchForm/TextCountChart/Landing carousel for scraped sites
+ */
 export default function Home() {
   const [imageResults, setImageResults] = useState<[] | ImageResult[]>([]);
   const [textResults, setTextResults] = useState<[] | TextResult[]>([]);
@@ -21,7 +25,7 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <h1>Scrape a site to get your details</h1>
+      <h1>Scrape a site to see the text and image content from the page</h1>
 
       <SearchForm
         setIsLoading={setIsLoading}
