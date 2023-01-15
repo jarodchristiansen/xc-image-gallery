@@ -1,5 +1,4 @@
 import type { NextApiRequest, NextApiResponse } from "next";
-import cacheData from "memory-cache";
 import { ImageResult, TextResult } from "../../../types";
 import cheerio from "cheerio";
 
@@ -10,7 +9,7 @@ type Data = {
 };
 
 type ErrorData = {
-  error: string;
+  message: string;
   name: string;
 };
 
@@ -19,7 +18,7 @@ export default async function handler(
   res: NextApiResponse<Data | ErrorData>
 ) {
   // set Vercel cache response for 1 week in seconds
-  res.setHeader("Cache-Control", "s-maxage=604800000");
+  res.setHeader("Cache-Control", "s-maxage=604800");
   const { url_input } = req.query;
   // TODO: Once cheerio type resolved, update these anys
   let cleanedUrl = "";
@@ -27,6 +26,11 @@ export default async function handler(
   let wordMap = {} as any;
   let sortedWordMap = [] as any;
   let wordCount = 0;
+
+  let errObject = {
+    name: "",
+    message: "",
+  };
 
   const handleImages = async (html: any) => {
     html.find("img").each((index: number, element: cheerio.TagElement) => {
@@ -47,7 +51,7 @@ export default async function handler(
   // TODO: Find Cheerio Type for $('HTML'), is not in ide rec
   const handleText = async (html: any, cheerio: cheerio.Root) => {
     html.each(function (i: number, elm: cheerio.Element) {
-      // TODO: Improve this regex to be more effective with html element chars or htmlparser library
+      // TODO: Look into more robust htmlparser library for this
       let line = cheerio(elm)
         .prop("innerText")
         .replace(/\s+/g, " ")
@@ -79,9 +83,9 @@ export default async function handler(
       });
   };
 
-  const fetchWithCache = async (url: string, options: any) => {
+  const fetchPageData = async (url: string, options: any) => {
     try {
-      const response = await fetch(`${cleanedUrl}`, options);
+      const response = await fetch(`${url}`, options);
       const htmlString = await response.text();
       const $ = cheerio.load(htmlString);
 
@@ -91,56 +95,15 @@ export default async function handler(
       await handleImages(html);
       await handleText(html, $);
 
-      let data = { images: results, sortedWordMap, wordCount };
-      let hours = 168;
-
-      // cacheData.put(url, data, hours * 1000 * 60 * 60);
       res.status(200).json({ images: results, sortedWordMap, wordCount });
     } catch (err) {
-      let errObject = {
-        name: "no url",
-        error: "Url was not found, please verify the spelling or try again",
-      };
+      errObject.name = "Page Not Found";
+      errObject.message =
+        "Url entered was not found, please check the spelling and try again";
 
       return res.status(404).json(errObject);
     }
   };
-
-  // const fetchWithCache = async (url: string, options: any) => {
-  //   const value = cacheData.get(url);
-  //   if (value) {
-  //     results = value.images;
-  //     sortedWordMap = value.sortedWordMap;
-  //     wordCount = value.wordCount;
-
-  //     res.status(200).json({ images: results, sortedWordMap, wordCount });
-  //   } else {
-  //     try {
-  //       const response = await fetch(`${cleanedUrl}`, options);
-  //       const htmlString = await response.text();
-  //       const $ = cheerio.load(htmlString);
-
-  //       const html = $("html");
-
-  //       // TODO: Improve runtime complexity of both calls while keeping verbose
-  //       await handleImages(html);
-  //       await handleText(html, $);
-
-  //       let data = { images: results, sortedWordMap, wordCount };
-  //       let hours = 168;
-
-  //       cacheData.put(url, data, hours * 1000 * 60 * 60);
-  //       res.status(200).json({ images: results, sortedWordMap, wordCount });
-  //     } catch (err) {
-  //       let errObject = {
-  //         name: "no url",
-  //         error: "Url was not found, please verify the spelling or try again",
-  //       };
-
-  //       return res.status(404).json(errObject);
-  //     }
-  //   }
-  // };
 
   if (typeof url_input == "string") {
     cleanedUrl = url_input?.replace(/["']/g, "");
@@ -150,11 +113,16 @@ export default async function handler(
       : cleanedUrl;
   }
 
-  // Protects against case of no string passes/unclean url waits for js loading 10s
   if (cleanedUrl) {
     let options = {
       timeout: 1000,
     };
-    await fetchWithCache(cleanedUrl, options);
+    await fetchPageData(cleanedUrl, options);
+  } else {
+    errObject.name = "Invalid Request";
+    errObject.message =
+      "It appears the url you entered was invalid. Please check the spelling and try again";
+
+    return res.status(403).json(errObject);
   }
 }
