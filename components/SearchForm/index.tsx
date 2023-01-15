@@ -70,7 +70,10 @@ const SearchForm = ({
   };
 
   return (
-    <div className="flex-col mx-auto md:w-8/12 text-center">
+    <div
+      className="flex-col mx-auto md:w-8/12 text-center"
+      data-testid="search-form"
+    >
       <form
         onSubmit={sendRequest}
         onChange={handleFormChange}
@@ -84,6 +87,7 @@ const SearchForm = ({
             type="text"
             name="url-input"
             className="min-w-full border-2 border-solid"
+            data-testid="url-input"
           />
         </div>
 
@@ -92,6 +96,7 @@ const SearchForm = ({
             type="submit"
             disabled={submitDisabled}
             className="border-2 border-solid py-2 px-2 bg-purple-500 text-white disabled:hover:bg-black disabled:cursor-not-allowed"
+            data-testid="submit-button"
           >
             <span>Submit</span>
           </button>

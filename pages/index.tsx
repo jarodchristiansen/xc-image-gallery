@@ -16,7 +16,10 @@ export default function Home() {
   const [loading, setIsLoading] = useState(false);
 
   return (
-    <div className="flex flex-col min-w-full text-center items-center">
+    <div
+      className="flex flex-col min-w-full text-center items-center"
+      data-testid="main-page-container"
+    >
       <Head>
         <title>XC Gallery</title>
         <meta name="description" content="Image/text scraper for XC takehome" />

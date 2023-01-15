@@ -30,7 +30,7 @@ const TextCountChart = (data: TextCountChartProps) => {
   ];
 
   return (
-    <div>
+    <div data-testid="chart-holder">
       {!!data?.data?.length && (
         <PieChart width={400} height={400} className="mx-auto">
           <Pie
@@ -49,6 +49,7 @@ const TextCountChart = (data: TextCountChartProps) => {
                 <Cell
                   key={`cell-${index}`}
                   fill={COLORS[index % COLORS.length]}
+                  data-test-id={entry.word + " cell"}
                 />
               );
             })}

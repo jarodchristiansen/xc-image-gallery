@@ -29,6 +29,7 @@ const LandingCarousel = (photos: LandingCarouselProps) => {
             width={100}
             height={100}
             unoptimized={true}
+            data-testid="scraped-image"
           />
         </div>
       );
@@ -36,7 +37,10 @@ const LandingCarousel = (photos: LandingCarouselProps) => {
   }, [images]);
 
   return (
-    <div className="max-h-80 sm:max-w-lg lg:max-w-2xl mx-auto">
+    <div
+      className="max-h-80 sm:max-w-lg lg:max-w-2xl mx-auto"
+      data-testid="image-carousel"
+    >
       <Carousel
         showArrows
         autoPlay
