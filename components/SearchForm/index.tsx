@@ -43,30 +43,20 @@ const SearchForm = ({
     setIsLoading(true);
     setSubmitDisabled(true);
 
-    let results = await fetch(`/api/webscrape/?url_input='${urlInput}'`)
-      .then((res) => res.json())
-      .catch((err) => {
-        setErrorMessage(err?.error);
-      });
+    // TODO: Consider moving search to SSR query on separate page after input, enables true 404's from API
+    let results = await fetch(`/api/webscrape/?url_input='${urlInput}'`).then(
+      (res) => res.json()
+    );
+
+    if (!!results.message && !!results.name) {
+      setErrorMessage(results.message);
+    } else {
+      setImageResults(results.images);
+      setWordCount(results.wordCount);
+      setTextResults(results.sortedWordMap);
+    }
 
     setIsLoading(false);
-    setWordCount(results?.wordCount);
-
-    if (results?.images) {
-      setImageResults(results.images);
-    }
-
-    if (results?.sortedWordMap) {
-      setTextResults(results.sortedWordMap);
-    } else if (
-      !results?.wordCount &&
-      !results.images &&
-      !results?.sortedWordMap
-    ) {
-      setErrorMessage(
-        "No content found, please attempt a search with another url"
-      );
-    }
 
     setSubmitDisabled(false);
   };
@@ -75,7 +65,7 @@ const SearchForm = ({
     setUrlInput(e.target.value);
     let input = e.target.value;
 
-    // http://www.faqs.org/rfcs/rfc3987.html - Reference
+    // http://www.faqs.org/rfcs/rfc3987.html - Reference, verifies url structure in input
     let expression =
       /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
     let regex = new RegExp(expression);
