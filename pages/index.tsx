@@ -12,7 +12,6 @@ import { ImageResult, TextResult } from "../types";
 export default function Home() {
   const [imageResults, setImageResults] = useState<[] | ImageResult[]>([]);
   const [textResults, setTextResults] = useState<[] | TextResult[]>([]);
-
   const [wordCount, setWordCount] = useState(0);
   const [loading, setIsLoading] = useState(false);
 
