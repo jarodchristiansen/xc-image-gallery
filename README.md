@@ -12,3 +12,4 @@ npm run dev
 yarn dev
 ```
 
+![xc](https://user-images.githubusercontent.com/50091942/212685643-02dc2be2-2ff6-4713-b49d-0971f0925fb9.png)
