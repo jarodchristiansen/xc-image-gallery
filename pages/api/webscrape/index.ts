@@ -22,9 +22,9 @@ export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data | ErrorData>
 ) {
-  // set Vercel cache response for 1 week in seconds
   res.setHeader("Cache-Control", "s-maxage=604800");
   const { url_input } = req.query;
+
   // TODO: Once cheerio type resolved, update these anys
   let cleanedUrl = "";
   let results = [] as ImageResult[];
@@ -57,10 +57,7 @@ export default async function handler(
   const handleText = async (html: any, cheerio: cheerio.Root) => {
     html.each(function (i: number, elm: cheerio.Element) {
       // TODO: Improve this regex to be more robust with html element chars or update to htmlparser library
-      // Potential library: https://www.npmjs.com/package/html-react-parser
 
-      // textContent gets the content of all elements, including <script> and <style> elements.
-      // In contrast, innerText only shows "human-readable" elements. although innerText is more computationally expensive
       let line = cheerio(elm)
         .prop("innerText")
         .replace(/\s+/g, " ")
